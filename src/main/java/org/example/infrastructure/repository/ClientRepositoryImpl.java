@@ -17,6 +17,7 @@ import org.jooq.Field;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 
 @ApplicationScoped
 public class ClientRepositoryImpl implements ClientRepository {
@@ -27,9 +28,18 @@ public class ClientRepositoryImpl implements ClientRepository {
   private DSLContext db;
   @Inject
   private ClientMapper mapper;
+  @Inject
+  private EntityManager entityManager;
 
   public Client save(Client client) {
-    return mapper.toClient(repository.save(mapper.toClientEntity(client)));
+    var entity = mapper.toClientEntity(client);
+
+    if (client.getId() != null) {
+      var entityVersion = entityManager.getReference(ClientEntity.class, client.getId()).getVersion();
+      entity.setVersion(entityVersion);
+    }
+
+    return mapper.toClient(repository.save(entity));
   }
 
   public void remove(Client client) {
@@ -49,7 +59,7 @@ public class ClientRepositoryImpl implements ClientRepository {
 
     return db.selectFrom(CLIENT)
         .where(where)
-        .fetchOne(r -> new Client(r.get(CLIENT.ID), r.get(CLIENT.VERSION), r.get(CLIENT.NAME)));
+        .fetchOne(r -> new Client(r.get(CLIENT.ID), r.get(CLIENT.NAME)));
   }
 
   public Page<Client> findAll(int offset, int limit, ClientFilter filter, ClientSort sort) {
@@ -61,7 +71,7 @@ public class ClientRepositoryImpl implements ClientRepository {
         .orderBy(orderBy)
         .offset(offset)
         .limit(limit)
-        .fetch(r -> new Client(r.get(CLIENT.ID), r.get(CLIENT.VERSION), r.get(CLIENT.NAME)));
+        .fetch(r -> new Client(r.get(CLIENT.ID), r.get(CLIENT.NAME)));
 
     var total = db.selectCount()
         .from(CLIENT)

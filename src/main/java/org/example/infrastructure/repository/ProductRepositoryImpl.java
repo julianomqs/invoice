@@ -17,6 +17,7 @@ import org.jooq.Field;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 
 @ApplicationScoped
 public class ProductRepositoryImpl implements ProductRepository {
@@ -27,9 +28,18 @@ public class ProductRepositoryImpl implements ProductRepository {
   private DSLContext db;
   @Inject
   private ProductMapper mapper;
+  @Inject
+  private EntityManager entityManager;
 
   public Product save(Product product) {
-    return mapper.toProduct(repository.save(mapper.toProductEntity(product)));
+    var entity = mapper.toProductEntity(product);
+
+    if (product.getId() != null) {
+      var entityVersion = entityManager.getReference(ProductEntity.class, product.getId()).getVersion();
+      entity.setVersion(entityVersion);
+    }
+
+    return mapper.toProduct(repository.save(entity));
   }
 
   public void remove(Product product) {
@@ -49,7 +59,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     return db.selectFrom(PRODUCT)
         .where(where)
-        .fetchOne(r -> new Product(r.get(PRODUCT.ID), r.get(PRODUCT.VERSION), r.get(PRODUCT.NAME)));
+        .fetchOne(r -> new Product(r.get(PRODUCT.ID), r.get(PRODUCT.NAME)));
   }
 
   public Page<Product> findAll(int offset, int limit, ProductFilter filter, ProductSort sort) {
@@ -62,7 +72,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         .offset(offset)
         .limit(limit)
         .fetch(
-            r -> new Product(r.get(PRODUCT.ID), r.get(PRODUCT.VERSION), r.get(PRODUCT.NAME)));
+            r -> new Product(r.get(PRODUCT.ID), r.get(PRODUCT.NAME)));
 
     var total = db.selectCount()
         .from(PRODUCT)
