@@ -9,8 +9,8 @@ import java.util.Set;
 import org.example.application.controller.ClientController.ClientDto;
 import org.example.application.controller.ProductController.ProductDto;
 import org.example.application.mapper.InvoiceMapper;
-import org.example.constraint.Id;
 import org.example.constraint.Unique;
+import org.example.domain.EntityNotFoundException;
 import org.example.domain.useCase.invoice.FindAllInvoiceUseCase;
 import org.example.domain.useCase.invoice.FindByIdInvoiceUseCase;
 import org.example.domain.useCase.invoice.InvoiceFilter;
@@ -65,7 +65,7 @@ public class InvoiceController {
   public record CreateInvoiceDto(
       @NotBlank @Size(max = 255) String number,
       @NotNull LocalDateTime dateTime,
-      @NotNull @Id(Id.Table.CLIENT) Integer client,
+      @NotNull Integer client,
       @NotEmpty @Unique( {
           "product" }) List<CreateInvoiceItemDto> items){
   }
@@ -73,13 +73,13 @@ public class InvoiceController {
   public record CreateInvoiceItemDto(
       @NotNull @Min(0) BigDecimal quantity,
       @NotNull @Min(0) BigDecimal unitValue,
-      @NotNull @Id(Id.Table.PRODUCT) Integer product) {
+      @NotNull Integer product) {
   }
 
   public record UpdateInvoiceDto(
       @NotBlank @Size(max = 255) String number,
       @NotNull LocalDateTime dateTime,
-      @NotNull @Id(Id.Table.CLIENT) Integer client,
+      @NotNull Integer client,
       ModifyInvoiceItemDto items) {
   }
 
@@ -88,20 +88,20 @@ public class InvoiceController {
           "product" }) List<CreateInvoiceItemDto> create,
       @Unique({
           "id", "product" }) List<UpdateInvoiceItemDto> update,
-      @Id(Id.Table.INVOICE_ITEM) Set<Integer> remove){
+      Set<Integer> remove){
   }
 
   public record UpdateInvoiceItemDto(
-      @Id(Id.Table.INVOICE_ITEM) Integer id,
+      Integer id,
       @NotNull @Min(0) BigDecimal quantity,
       @NotNull @Min(0) BigDecimal unitValue,
-      @NotNull @Id(Id.Table.PRODUCT) Integer product) {
+      @NotNull Integer product) {
   }
 
   public record PatchInvoiceDto(
       @Size(min = 1, max = 255) String number,
       LocalDateTime dateTime,
-      @Id(Id.Table.CLIENT) Integer client,
+      Integer client,
       ModifyPatchInvoiceItemDto items) {
   }
 
@@ -110,14 +110,14 @@ public class InvoiceController {
           "product" }) List<CreateInvoiceItemDto> create,
       @Unique({
           "id", "product" }) List<PatchInvoiceItemDto> update,
-      @Id(Id.Table.INVOICE_ITEM) Set<Integer> remove){
+      Set<Integer> remove){
   }
 
   public record PatchInvoiceItemDto(
-      @Id(Id.Table.INVOICE_ITEM) Integer id,
+      Integer id,
       @Min(0) BigDecimal quantity,
       @Min(0) BigDecimal unitValue,
-      @Id(Id.Table.PRODUCT) Integer product) {
+      Integer product) {
   }
 
   public record FindOneInvoiceDto(Integer id, String number, LocalDateTime dateTime, ClientDto client,
@@ -142,7 +142,7 @@ public class InvoiceController {
 
   @POST
   @Path("/{id}/items")
-  public Response createItem(@PathParam("id") @Id(Id.Table.INVOICE) Integer id, @Valid CreateInvoiceItemDto dto) {
+  public Response createItem(@PathParam("id") Integer id, @Valid CreateInvoiceItemDto dto) {
     var invoice = findByIdInvoiceUseCase.execute(id);
 
     var invoiceItem = mapper.toInvoiceItem(dto);
@@ -163,7 +163,7 @@ public class InvoiceController {
 
   @PUT
   @Path("/{id}")
-  public Response update(@PathParam("id") @Id(Id.Table.INVOICE) Integer id, @Valid UpdateInvoiceDto dto) {
+  public Response update(@PathParam("id") Integer id, @Valid UpdateInvoiceDto dto) {
     var invoice = findByIdInvoiceUseCase.execute(id);
     var updatedInvoice = mapper.updateInvoice(dto, invoice);
     updatedInvoice.setId(id);
@@ -177,15 +177,15 @@ public class InvoiceController {
   @PUT
   @Path("/{id}/items/{itemId}")
   public Response updateItem(
-      @PathParam("id") @Id(Id.Table.INVOICE) Integer id,
-      @PathParam("itemId") @Id(Id.Table.INVOICE_ITEM) Integer itemId,
+      @PathParam("id") Integer id,
+      @PathParam("itemId") Integer itemId,
       @Valid UpdateInvoiceItemDto dto) {
     var invoice = findByIdInvoiceUseCase.execute(id);
     var invoiceItem = invoice.getItems()
         .stream()
         .filter(i -> i.getId().equals(itemId))
         .findFirst()
-        .get();
+        .orElseThrow(() -> new EntityNotFoundException("Item com id " + itemId + " não encontrado"));
 
     var updatedInvoiceItem = mapper.updateInvoiceItem(dto, invoiceItem);
     invoice.getItems().add(updatedInvoiceItem);
@@ -204,7 +204,7 @@ public class InvoiceController {
 
   @PATCH
   @Path("/{id}")
-  public Response patch(@PathParam("id") @Id(Id.Table.INVOICE) Integer id, @Valid PatchInvoiceDto dto) {
+  public Response patch(@PathParam("id") Integer id, @Valid PatchInvoiceDto dto) {
     var invoice = findByIdInvoiceUseCase.execute(id);
     var updatedInvoice = mapper.patchInvoice(dto, invoice);
     updatedInvoice.setId(id);
@@ -218,15 +218,15 @@ public class InvoiceController {
   @PATCH
   @Path("/{id}/items/{itemId}")
   public Response patchItem(
-      @PathParam("id") @Id(Id.Table.INVOICE) Integer id,
-      @PathParam("itemId") @Id(Id.Table.INVOICE_ITEM) Integer itemId,
+      @PathParam("id") Integer id,
+      @PathParam("itemId") Integer itemId,
       @Valid PatchInvoiceItemDto dto) {
     var invoice = findByIdInvoiceUseCase.execute(id);
     var invoiceItem = invoice.getItems()
         .stream()
         .filter(i -> i.getId().equals(itemId))
         .findFirst()
-        .get();
+        .orElseThrow(() -> new EntityNotFoundException("Item com id " + itemId + " não encontrado"));
 
     var updatedInvoiceItem = mapper.patchInvoiceItem(dto, invoiceItem);
     invoice.getItems().add(updatedInvoiceItem);
@@ -245,7 +245,7 @@ public class InvoiceController {
 
   @DELETE
   @Path("/{id}")
-  public Response remove(@PathParam("id") @Id(Id.Table.INVOICE) Integer id) {
+  public Response remove(@PathParam("id") Integer id) {
     var invoice = findByIdInvoiceUseCase.execute(id);
 
     removeInvoiceUseCase.execute(invoice);
@@ -256,14 +256,14 @@ public class InvoiceController {
   @DELETE
   @Path("/{id}/items/{itemId}")
   public Response deleteItem(
-      @PathParam("id") @Id(Id.Table.INVOICE) Integer id,
-      @PathParam("itemId") @Id(Id.Table.INVOICE_ITEM) Integer itemId) {
+      @PathParam("id") Integer id,
+      @PathParam("itemId") Integer itemId) {
     var invoice = findByIdInvoiceUseCase.execute(id);
     var invoiceItem = invoice.getItems()
         .stream()
         .filter(i -> i.getId().equals(itemId))
         .findFirst()
-        .get();
+        .orElseThrow(() -> new EntityNotFoundException("Item com id " + itemId + " não encontrado"));
 
     invoice.getItems().remove(invoiceItem);
 
@@ -274,7 +274,7 @@ public class InvoiceController {
 
   @GET
   @Path("/{id}")
-  public Response findById(@PathParam("id") @Id(Id.Table.INVOICE) Integer id) {
+  public Response findById(@PathParam("id") Integer id) {
     var invoice = findByIdInvoiceUseCase.execute(id);
     var invoiceDto = mapper.toFindOneInvoiceDto(invoice);
 
@@ -284,14 +284,14 @@ public class InvoiceController {
   @GET
   @Path("/{id}/items/{itemId}")
   public Response getItem(
-      @PathParam("id") @Id(Id.Table.INVOICE) Integer id,
-      @PathParam("itemId") @Id(Id.Table.INVOICE_ITEM) Integer itemId) {
+      @PathParam("id") Integer id,
+      @PathParam("itemId") Integer itemId) {
     var invoice = findByIdInvoiceUseCase.execute(id);
     var invoiceItem = invoice.getItems()
         .stream()
         .filter(i -> i.getId().equals(itemId))
         .findFirst()
-        .get();
+        .orElseThrow(() -> new EntityNotFoundException("Item com id " + itemId + " não encontrado"));
 
     var invoiceItemDto = mapper.toInvoiceItemDto(invoiceItem);
 
@@ -330,7 +330,7 @@ public class InvoiceController {
 
   @GET
   @Path("/{id}/items")
-  public Response getItems(@PathParam("id") @Id(Id.Table.INVOICE) Integer id) {
+  public Response getItems(@PathParam("id") Integer id) {
     var invoice = findByIdInvoiceUseCase.execute(id);
 
     var dtos = invoice.getItems()

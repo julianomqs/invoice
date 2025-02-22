@@ -2,8 +2,11 @@ package org.example.domain.useCase.invoice;
 
 import java.util.LinkedHashSet;
 
+import org.example.application.mapper.InvoiceMapper;
 import org.example.domain.entity.Invoice;
 import org.example.domain.repository.InvoiceRepository;
+import org.example.domain.useCase.client.FindByIdClientUseCase;
+import org.example.domain.useCase.product.FindByIdProductUseCase;
 import org.example.exceptionmapper.BusinessException;
 import org.example.util.NumberOperators;
 import org.example.util.StringOperators;
@@ -17,11 +20,27 @@ public class SaveInvoiceUseCase {
 
   @Inject
   private InvoiceRepository repository;
+  @Inject
+  private InvoiceMapper mapper;
+  @Inject
+  private FindByIdInvoiceUseCase findByIdInvoiceUseCase;
+  @Inject
+  private FindByIdClientUseCase findByIdClientUseCase;
+  @Inject
+  private FindByIdProductUseCase findByIdProductUseCase;
 
   @Transactional
   public Invoice execute(Invoice invoice) {
     validateExistingNumber(invoice);
     validateDuplicateProducts(invoice);
+
+    if (invoice.getId() != null) {
+      var invoiceDB = findByIdInvoiceUseCase.execute(invoice.getId());
+      invoice = mapper.updateInvoice(invoice, invoiceDB);
+    }
+
+    invoice.setClient(findByIdClientUseCase.execute(invoice.getClient().getId()));
+    invoice.getItems().forEach(item -> item.setProduct(findByIdProductUseCase.execute(item.getProduct().getId())));
 
     return repository.save(invoice);
   }
@@ -41,7 +60,7 @@ public class SaveInvoiceUseCase {
 
       var filter = filterBuilder.build();
 
-      if (repository.find(filter) != null) {
+      if (repository.find(filter).isPresent()) {
         throw new BusinessException("Já existe uma nota fiscal com o número informado.");
       }
     }

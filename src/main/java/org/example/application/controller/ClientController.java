@@ -3,7 +3,6 @@ package org.example.application.controller;
 import java.util.HashMap;
 
 import org.example.application.mapper.ClientMapper;
-import org.example.constraint.Id;
 import org.example.domain.useCase.client.ClientFilter;
 import org.example.domain.useCase.client.ClientSort;
 import org.example.domain.useCase.client.FindAllClientUseCase;
@@ -74,7 +73,7 @@ public class ClientController {
 
   @PUT
   @Path("/{id}")
-  public Response update(@PathParam("id") @Id(Id.Table.CLIENT) Integer id, @Valid CreateClientDto dto) {
+  public Response update(@PathParam("id") Integer id, @Valid CreateClientDto dto) {
     var client = findByIdClientUseCase.execute(id);
     var updatedClient = mapper.updateClient(dto, client);
     updatedClient.setId(id);
@@ -87,7 +86,7 @@ public class ClientController {
 
   @PATCH
   @Path("/{id}")
-  public Response patch(@PathParam("id") @Id(Id.Table.CLIENT) Integer id, @Valid PatchClientDto dto) {
+  public Response patch(@PathParam("id") Integer id, @Valid PatchClientDto dto) {
     var client = findByIdClientUseCase.execute(id);
     var updatedClient = mapper.patchClient(dto, client);
     updatedClient.setId(id);
@@ -100,7 +99,7 @@ public class ClientController {
 
   @DELETE
   @Path("/{id}")
-  public Response remove(@PathParam("id") @Id(Id.Table.CLIENT) Integer id) {
+  public Response remove(@PathParam("id") Integer id) {
     var client = findByIdClientUseCase.execute(id);
 
     removeClientUseCase.execute(client);
@@ -110,7 +109,7 @@ public class ClientController {
 
   @GET
   @Path("/{id}")
-  public Response findById(@PathParam("id") @Id(Id.Table.CLIENT) Integer id) {
+  public Response findById(@PathParam("id") Integer id) {
     var client = findByIdClientUseCase.execute(id);
     var clientDto = mapper.toDto(client);
 

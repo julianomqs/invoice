@@ -1,5 +1,6 @@
 package org.example.domain.useCase.product;
 
+import org.example.application.mapper.ProductMapper;
 import org.example.domain.entity.Product;
 import org.example.domain.repository.ProductRepository;
 import org.example.exceptionmapper.BusinessException;
@@ -15,10 +16,20 @@ public class SaveProductUseCase {
 
   @Inject
   private ProductRepository repository;
+  @Inject
+  private ProductMapper mapper;
+  @Inject
+  private FindByIdProductUseCase findByIdProductUseCase;
 
   @Transactional
   public Product execute(Product product) {
     validateExistingName(product);
+
+    if (product.getId() != null) {
+      var productDB = findByIdProductUseCase.execute(product.getId());
+      product = mapper.updateProduct(product, productDB);
+    }
+
     return repository.save(product);
   }
 
@@ -37,7 +48,7 @@ public class SaveProductUseCase {
 
       var filter = filterBuilder.build();
 
-      if (repository.find(filter) != null) {
+      if (repository.find(filter).isPresent()) {
         throw new BusinessException("Já existe um produto com o nome informado.");
       }
     }

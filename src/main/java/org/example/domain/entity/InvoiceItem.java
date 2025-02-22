@@ -15,6 +15,7 @@ public class InvoiceItem {
 
   @EqualsAndHashCode.Include
   private Integer id;
+  private Integer version;
   private BigDecimal quantity;
   private BigDecimal unitValue;
   private Product product;

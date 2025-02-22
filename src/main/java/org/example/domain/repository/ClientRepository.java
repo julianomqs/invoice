@@ -1,5 +1,7 @@
 package org.example.domain.repository;
 
+import java.util.Optional;
+
 import org.example.domain.entity.Client;
 import org.example.domain.useCase.client.ClientFilter;
 import org.example.domain.useCase.client.ClientSort;
@@ -11,9 +13,9 @@ public interface ClientRepository {
 
   void remove(Client client);
 
-  Client findById(Integer id);
+  Optional<Client> findById(Integer id);
 
-  Client find(ClientFilter filter);
+  Optional<Client> find(ClientFilter filter);
 
   Page<Client> findAll(int offset, int limit, ClientFilter filter, ClientSort sort);
 }

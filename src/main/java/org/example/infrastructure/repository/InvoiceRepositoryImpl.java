@@ -7,6 +7,7 @@ import static org.jooq.impl.DSL.row;
 import static org.jooq.impl.DSL.select;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.example.application.mapper.InvoiceMapper;
 import org.example.domain.entity.Client;
@@ -16,10 +17,7 @@ import org.example.domain.entity.Product;
 import org.example.domain.repository.InvoiceRepository;
 import org.example.domain.useCase.invoice.InvoiceFilter;
 import org.example.domain.useCase.invoice.InvoiceSort;
-import org.example.infrastructure.entity.ClientEntity;
 import org.example.infrastructure.entity.InvoiceEntity;
-import org.example.infrastructure.entity.InvoiceItemEntity;
-import org.example.infrastructure.entity.ProductEntity;
 import org.example.util.NumberOperators;
 import org.example.util.Page;
 import org.jooq.DSLContext;
@@ -28,7 +26,6 @@ import org.jooq.Records;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 
 @ApplicationScoped
 public class InvoiceRepositoryImpl implements InvoiceRepository {
@@ -39,29 +36,9 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
   private DSLContext db;
   @Inject
   private InvoiceMapper mapper;
-  @Inject
-  private EntityManager entityManager;
 
   public Invoice save(Invoice invoice) {
     var entity = mapper.toInvoiceEntity(invoice);
-
-    if (invoice.getId() != null) {
-      var entityVersion = entityManager.getReference(InvoiceEntity.class, invoice.getId()).getVersion();
-      entity.setVersion(entityVersion);
-    }
-
-    var clientVersion = entityManager.getReference(ClientEntity.class, invoice.getClient().getId()).getVersion();
-    entity.getClient().setVersion(clientVersion);
-
-    for (var item : entity.getItems()) {
-      if (item.getId() != null) {
-        var itemVersion = entityManager.getReference(InvoiceItemEntity.class, item.getId()).getVersion();
-        item.setVersion(itemVersion);
-      }
-
-      var productVersion = entityManager.getReference(ProductEntity.class, item.getProduct().getId()).getVersion();
-      item.getProduct().setVersion(productVersion);
-    }
 
     return mapper.toInvoice(repository.save(entity));
   }
@@ -70,7 +47,7 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
     repository.remove(mapper.toInvoiceEntity(invoice));
   }
 
-  public Invoice findById(Integer id) {
+  public Optional<Invoice> findById(Integer id) {
     return find(InvoiceFilter.builder()
         .id(NumberOperators.builder()
             .eq(id)
@@ -78,9 +55,10 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
         .build());
   }
 
-  public Invoice find(InvoiceFilter filter) {
+  public Optional<Invoice> find(InvoiceFilter filter) {
     var client = field(row(
         INVOICE.client().ID,
+        INVOICE.client().VERSION,
         INVOICE.client().NAME)
             .mapping(Client::new)
             .as("client"));
@@ -88,10 +66,12 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
     var items = multiset(
         select(
             INVOICE.invoiceItem().ID,
+            INVOICE.invoiceItem().VERSION,
             INVOICE.invoiceItem().QUANTITY,
             INVOICE.invoiceItem().UNIT_VALUE,
             row(
                 INVOICE.invoiceItem().product().ID,
+                INVOICE.invoiceItem().product().VERSION,
                 INVOICE.invoiceItem().product().NAME)
                     .mapping(Product::new)
                     .as("product"))
@@ -112,8 +92,9 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
         items)
         .from(INVOICE)
         .where(where)
-        .fetchOne(r -> new Invoice(
+        .fetchOptional(r -> new Invoice(
             r.get(INVOICE.ID),
+            r.get(INVOICE.VERSION),
             r.get(INVOICE.NUMBER),
             r.get(INVOICE.DATE_TIME),
             r.get(client),
@@ -126,6 +107,7 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
 
     var client = field(row(
         INVOICE.client().ID,
+        INVOICE.client().VERSION,
         INVOICE.client().NAME)
             .mapping(Client::new)
             .as("client"));
@@ -143,6 +125,7 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
         .limit(limit)
         .fetch(r -> new Invoice(
             r.get(INVOICE.ID),
+            r.get(INVOICE.VERSION),
             r.get(INVOICE.NUMBER),
             r.get(INVOICE.DATE_TIME),
             r.get(client)));

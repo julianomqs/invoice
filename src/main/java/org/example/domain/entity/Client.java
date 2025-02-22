@@ -10,5 +10,6 @@ import lombok.NoArgsConstructor;
 public class Client {
 
   private Integer id;
+  private Integer version;
   private String name;
 }

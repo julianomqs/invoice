@@ -38,6 +38,7 @@ public abstract class InvoiceMapper {
     InvoiceEntity entity = new InvoiceEntity();
 
     entity.setId(invoice.getId());
+    entity.setVersion(invoice.getVersion());
     entity.setNumber(invoice.getNumber());
     entity.setDateTime(invoice.getDateTime());
     entity.setClient(clientMapper.toClientEntity(invoice.getClient()));
@@ -95,6 +96,8 @@ public abstract class InvoiceMapper {
 
     return invoice;
   }
+
+  public abstract Invoice updateInvoice(Invoice invoice, @MappingTarget Invoice invoiceToUpdate);
 
   public Invoice patchInvoice(PatchInvoiceDto dto, Invoice invoice) {
     if (dto.number() != null) {

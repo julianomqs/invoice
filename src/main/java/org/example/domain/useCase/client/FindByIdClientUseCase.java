@@ -1,5 +1,6 @@
 package org.example.domain.useCase.client;
 
+import org.example.domain.EntityNotFoundException;
 import org.example.domain.entity.Client;
 import org.example.domain.repository.ClientRepository;
 
@@ -13,6 +14,7 @@ public class FindByIdClientUseCase {
   private ClientRepository repository;
 
   public Client execute(Integer id) {
-    return repository.findById(id);
+    return repository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Cliente com id " + id + " não encontrado"));
   }
 }

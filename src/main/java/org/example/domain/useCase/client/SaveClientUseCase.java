@@ -1,5 +1,6 @@
 package org.example.domain.useCase.client;
 
+import org.example.application.mapper.ClientMapper;
 import org.example.domain.entity.Client;
 import org.example.domain.repository.ClientRepository;
 import org.example.exceptionmapper.BusinessException;
@@ -15,10 +16,20 @@ public class SaveClientUseCase {
 
   @Inject
   private ClientRepository repository;
+  @Inject
+  private ClientMapper mapper;
+  @Inject
+  private FindByIdClientUseCase findByIdClientUseCase;
 
   @Transactional
   public Client execute(Client client) {
     validateExistingName(client);
+
+    if (client.getId() != null) {
+      var clientDB = findByIdClientUseCase.execute(client.getId());
+      client = mapper.updateClient(client, clientDB);
+    }
+
     return repository.save(client);
   }
 
@@ -37,7 +48,7 @@ public class SaveClientUseCase {
 
       var filter = filterBuilder.build();
 
-      if (repository.find(filter) != null) {
+      if (repository.find(filter).isPresent()) {
         throw new BusinessException("Já existe um cliente com o nome informado.");
       }
     }

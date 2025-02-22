@@ -14,12 +14,13 @@ import lombok.NoArgsConstructor;
 public class Invoice {
 
   private Integer id;
+  private Integer version;
   private String number;
   private LocalDateTime dateTime;
   private Client client;
   private Set<InvoiceItem> items = new LinkedHashSet<>();
 
-  public Invoice(Integer id, String number, LocalDateTime dateTime, Client client) {
+  public Invoice(Integer id, Integer version, String number, LocalDateTime dateTime, Client client) {
     this.id = id;
     this.number = number;
     this.dateTime = dateTime;

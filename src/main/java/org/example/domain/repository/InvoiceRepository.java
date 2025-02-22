@@ -1,5 +1,7 @@
 package org.example.domain.repository;
 
+import java.util.Optional;
+
 import org.example.domain.entity.Invoice;
 import org.example.domain.useCase.invoice.InvoiceFilter;
 import org.example.domain.useCase.invoice.InvoiceSort;
@@ -11,9 +13,9 @@ public interface InvoiceRepository {
 
   public void remove(Invoice invoice);
 
-  public Invoice findById(Integer id);
+  public Optional<Invoice> findById(Integer id);
 
-  public Invoice find(InvoiceFilter filter);
+  public Optional<Invoice> find(InvoiceFilter filter);
 
   public Page<Invoice> findAll(int offset, int limit, InvoiceFilter filter, InvoiceSort sort);
 }

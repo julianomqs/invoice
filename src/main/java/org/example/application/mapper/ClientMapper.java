@@ -22,6 +22,8 @@ public interface ClientMapper {
 
   Client updateClient(CreateClientDto dto, @MappingTarget Client client);
 
+  Client updateClient(Client client, @MappingTarget Client clientToUpdate);
+
   @Mapping(target = "name", nullValuePropertyMappingStrategy = IGNORE)
   Client patchClient(PatchClientDto dto, @MappingTarget Client client);
 

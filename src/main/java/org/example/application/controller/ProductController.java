@@ -3,7 +3,6 @@ package org.example.application.controller;
 import java.util.HashMap;
 
 import org.example.application.mapper.ProductMapper;
-import org.example.constraint.Id;
 import org.example.domain.useCase.product.FindAllProductUseCase;
 import org.example.domain.useCase.product.FindByIdProductUseCase;
 import org.example.domain.useCase.product.ProductFilter;
@@ -74,7 +73,7 @@ public class ProductController {
 
   @PUT
   @Path("/{id}")
-  public Response update(@PathParam("id") @Id(Id.Table.PRODUCT) Integer id, @Valid CreateProductDto dto) {
+  public Response update(@PathParam("id") Integer id, @Valid CreateProductDto dto) {
     var product = findByIdProductUseCase.execute(id);
     var updatedProduct = mapper.updateProduct(dto, product);
     updatedProduct.setId(id);
@@ -87,7 +86,7 @@ public class ProductController {
 
   @PATCH
   @Path("/{id}")
-  public Response patch(@PathParam("id") @Id(Id.Table.PRODUCT) Integer id, @Valid PatchProductDto dto) {
+  public Response patch(@PathParam("id") Integer id, @Valid PatchProductDto dto) {
     var product = findByIdProductUseCase.execute(id);
     var updatedProduct = mapper.patchProduct(dto, product);
     updatedProduct.setId(id);
@@ -100,7 +99,7 @@ public class ProductController {
 
   @DELETE
   @Path("/{id}")
-  public Response remove(@PathParam("id") @Id(Id.Table.PRODUCT) Integer id) {
+  public Response remove(@PathParam("id") Integer id) {
     var product = findByIdProductUseCase.execute(id);
 
     removeProductUseCase.execute(product);
@@ -110,7 +109,7 @@ public class ProductController {
 
   @GET
   @Path("/{id}")
-  public Response findById(@PathParam("id") @Id(Id.Table.PRODUCT) Integer id) {
+  public Response findById(@PathParam("id") Integer id) {
     var product = findByIdProductUseCase.execute(id);
     var productDto = mapper.toDto(product);
 

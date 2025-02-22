@@ -22,6 +22,8 @@ public interface ProductMapper {
 
   Product updateProduct(CreateProductDto dto, @MappingTarget Product product);
 
+  Product updateProduct(Product product, @MappingTarget Product productToUpdate);
+
   @Mapping(target = "name", nullValuePropertyMappingStrategy = IGNORE)
   Product patchProduct(PatchProductDto dto, @MappingTarget Product product);
 

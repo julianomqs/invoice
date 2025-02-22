@@ -1,5 +1,6 @@
 package org.example.domain.useCase.invoice;
 
+import org.example.domain.EntityNotFoundException;
 import org.example.domain.entity.Invoice;
 import org.example.domain.repository.InvoiceRepository;
 
@@ -13,6 +14,6 @@ public class FindInvoiceUseCase {
   private InvoiceRepository repository;
 
   public Invoice execute(InvoiceFilter filter) {
-    return repository.find(filter);
+    return repository.find(filter).orElseThrow(() -> new EntityNotFoundException("Invoice não encontrada."));
   }
 }

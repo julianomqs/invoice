@@ -1,5 +1,6 @@
 package org.example.domain.useCase.product;
 
+import org.example.domain.EntityNotFoundException;
 import org.example.domain.entity.Product;
 import org.example.domain.repository.ProductRepository;
 
@@ -13,6 +14,7 @@ public class FindByIdProductUseCase {
   private ProductRepository repository;
 
   public Product execute(Integer id) {
-    return repository.findById(id);
+    return repository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Produto com id " + id + " não encontrado"));
   }
 }

@@ -1,5 +1,7 @@
 package org.example.domain.repository;
 
+import java.util.Optional;
+
 import org.example.domain.entity.Product;
 import org.example.domain.useCase.product.ProductFilter;
 import org.example.domain.useCase.product.ProductSort;
@@ -11,9 +13,9 @@ public interface ProductRepository {
 
   public void remove(Product product);
 
-  public Product findById(Integer id);
+  public Optional<Product> findById(Integer id);
 
-  public Product find(ProductFilter filter);
+  public Optional<Product> find(ProductFilter filter);
 
   public Page<Product> findAll(int offset, int limit, ProductFilter filter, ProductSort sort);
 }
