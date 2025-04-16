@@ -102,7 +102,7 @@ const InvoiceForm = () => {
                     });
                   }
 
-                  toastRef.current?.show({
+                  toastRef.current.show({
                     severity: "success",
                     summary: "Info",
                     detail: `Invoice ${
@@ -124,7 +124,7 @@ const InvoiceForm = () => {
                       ? error.message
                       : "Error saving the invoice";
 
-                  toastRef.current?.show({
+                  toastRef.current.show({
                     severity: "error",
                     summary: "Error",
                     detail: message,
@@ -147,6 +147,7 @@ const InvoiceForm = () => {
           <Button
             label="Save"
             type="submit"
+            icon="pi pi-save"
             form="invoiceForm"
             onClick={() => setSubmitButton("save")}
             disabled={form.formState.isSubmitting}
@@ -157,6 +158,7 @@ const InvoiceForm = () => {
             <Button
               label="Save and create"
               type="submit"
+              icon="pi pi-file-plus"
               form="invoiceForm"
               onClick={() => setSubmitButton("create")}
               disabled={form.formState.isSubmitting}
@@ -168,6 +170,7 @@ const InvoiceForm = () => {
           <Button
             label="Cancel"
             type="button"
+            icon="pi pi-times"
             onClick={() => navigate("/invoices")}
             disabled={form.formState.isSubmitting}
             loading={form.formState.isSubmitting}

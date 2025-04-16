@@ -50,7 +50,7 @@ const ProductForm = () => {
 
   useEffect(() => {
     if (error) {
-      toastRef.current?.show({
+      toastRef.current.show({
         severity: "error",
         summary: "Error",
         detail: "Failed to load product",
@@ -79,7 +79,7 @@ const ProductForm = () => {
         });
       }
 
-      toastRef.current?.show({
+      toastRef.current.show({
         severity: "success",
         summary: "Info",
         detail: `Product ${params.id ? "updated" : "created"} with success!`,
@@ -96,7 +96,7 @@ const ProductForm = () => {
       const message =
         error instanceof Error ? error.message : "Error saving the product";
 
-      toastRef.current?.show({
+      toastRef.current.show({
         severity: "error",
         summary: "Error",
         detail: message,
@@ -122,6 +122,7 @@ const ProductForm = () => {
               name="save"
               label="Save"
               type="submit"
+              icon="pi pi-save"
               onClick={() => setSubmitButton("save")}
               disabled={form.formState.isSubmitting}
               loading={form.formState.isSubmitting}
@@ -132,6 +133,7 @@ const ProductForm = () => {
                 name="create"
                 label="Save and create"
                 type="submit"
+                icon="pi pi-file-plus"
                 onClick={() => setSubmitButton("create")}
                 disabled={form.formState.isSubmitting}
                 loading={form.formState.isSubmitting}
@@ -142,6 +144,7 @@ const ProductForm = () => {
             <Button
               label="Cancel"
               type="button"
+              icon="pi pi-times"
               onClick={() => navigate("/products")}
               disabled={form.formState.isSubmitting}
               loading={form.formState.isSubmitting}

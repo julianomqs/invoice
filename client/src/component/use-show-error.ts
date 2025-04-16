@@ -7,7 +7,7 @@ const useShowError = (error?: ApolloError) => {
 
   useEffect(() => {
     if (error) {
-      toastRef.current?.show({
+      toastRef.current.show({
         severity: "error",
         summary: "Error",
         detail: error.message,

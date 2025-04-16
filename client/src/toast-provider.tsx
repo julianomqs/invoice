@@ -8,7 +8,7 @@ export const ToastProvider = ({
 }: {
   children?: ReactNode;
 }) => {
-  const ref = useRef<Toast>(null);
+  const ref = useRef<Toast>(null!);
 
   return (
     <ToastContext value={ref} {...props}>

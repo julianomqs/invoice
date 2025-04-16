@@ -105,7 +105,7 @@ const Table = ({
                   variables: { input: { id: rowData.id } }
                 });
 
-                toastRef.current?.show({
+                toastRef.current.show({
                   severity: "success",
                   summary: "Info",
                   detail: "Customer removed with success!",

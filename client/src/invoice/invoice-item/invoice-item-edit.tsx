@@ -107,6 +107,7 @@ const InvoiceItemEdit = ({
           <Button
             label="Save"
             type="submit"
+            icon="pi pi-save"
             onClick={() => setSubmitButton("save")}
             disabled={form.formState.isSubmitting}
             loading={form.formState.isSubmitting}
@@ -114,6 +115,7 @@ const InvoiceItemEdit = ({
           <Button
             label="Save and create"
             type="submit"
+            icon="pi pi-file-plus"
             onClick={() => setSubmitButton("create")}
             disabled={form.formState.isSubmitting}
             loading={form.formState.isSubmitting}
@@ -122,6 +124,7 @@ const InvoiceItemEdit = ({
           <Button
             label="Cancel"
             type="button"
+            icon="pi pi-times"
             onClick={onCancel}
             disabled={form.formState.isSubmitting}
             loading={form.formState.isSubmitting}

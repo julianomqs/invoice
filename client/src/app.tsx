@@ -8,11 +8,11 @@ import Home from "./home";
 import InvoiceEdit from "./invoice/invoice-edit";
 import InvoiceList from "./invoice/invoice-list";
 import Layout from "./layout";
+import ProductEdit from "./product/product-edit";
+import ProductList from "./product/product-list";
 import { ToastProvider } from "./toast-provider";
 
 import "./app.css";
-import ProductEdit from "./product/product-edit";
-import ProductList from "./product/product-list";
 
 const client = new ApolloClient({
   uri: "/graphql",
