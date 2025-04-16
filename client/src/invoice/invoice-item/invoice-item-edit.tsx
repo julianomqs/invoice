@@ -11,6 +11,7 @@ import useForm from "../../component/use-form";
 import { useState } from "react";
 import { FIND_MANY_PRODUCT_QUERY } from "../../product/product-query";
 import { useLazyQuery } from "../../component/use-apollo";
+import { uuidValidateV7 } from "../../util/util";
 
 const InvoiceItemEdit = ({
   value,
@@ -112,15 +113,17 @@ const InvoiceItemEdit = ({
             disabled={form.formState.isSubmitting}
             loading={form.formState.isSubmitting}
           />
-          <Button
-            label="Save and create"
-            type="submit"
-            icon="pi pi-file-plus"
-            onClick={() => setSubmitButton("create")}
-            disabled={form.formState.isSubmitting}
-            loading={form.formState.isSubmitting}
-            outlined
-          />
+          {!value && (
+            <Button
+              label="Save and create"
+              type="submit"
+              icon="pi pi-file-plus"
+              onClick={() => setSubmitButton("create")}
+              disabled={form.formState.isSubmitting}
+              loading={form.formState.isSubmitting}
+              outlined
+            />
+          )}
           <Button
             label="Cancel"
             type="button"
