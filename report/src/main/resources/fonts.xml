@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fontFamilies>
+	<fontFamily name="OpenSans">
+		<normal><![CDATA[opensans/OpenSans-Regular.ttf]]></normal>
+		<bold><![CDATA[opensans/OpenSans-SemiBold.ttf]]></bold>
+		<italic><![CDATA[opensans/OpenSans-Italic.ttf]]></italic>
+		<boldItalic><![CDATA[opensans/OpenSans-SemiBoldItalic.ttf]]></boldItalic>
+		<pdfEncoding><![CDATA[Identity-H]]></pdfEncoding>
+		<pdfEmbedded><![CDATA[true]]></pdfEmbedded>
+		<exportFonts />
+	</fontFamily>
+</fontFamilies>

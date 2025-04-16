@@ -1,0 +1,17 @@
+TZ="America/Sao_Paulo"
+
+NODE_ENV="development"
+
+DB_DATABASE="example"
+DB_USER="root"
+DB_PASSWORD=your_password_here
+DATABASE_URL="mysql://root:your_password_here@db:3306/example"
+DB_EXTERNAL_PORT="3306"
+
+REPORT_EXTERNAL_PORT="4000"
+REPORT_DEBUG_PORT="5005"
+
+SERVER_EXTERNAL_PORT="3000"
+SERVER_DEBUG_PORT="9229"
+
+CLIENT_EXTERNAL_PORT="8080"

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio -->
+<jasperTemplate xmlns="http://jasperreports.sourceforge.net/jasperreports/template"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/template http://jasperreports.sourceforge.net/xsd/jaspertemplate.xsd">
+	<style name="default" isDefault="true" isBlankWhenNull="true" fontName="OpenSans" fontSize="8" />
+	<style name="column-header" style="default" isBold="true" isItalic="true" />
+	<style name="group-header-1" style="default" isBold="true" />
+	<style name="group-footer-1" style="default" isBold="true" />
+</jasperTemplate>

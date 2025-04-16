@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+@layer base, theme, primereact, utilities;
+
+@import "primereact/resources/themes/lara-light-blue/theme.css"
+  layer(primereact);
+
+@import "primeicons/primeicons.css";
+
+html,
+body,
+div#root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  background-color: #ffffff;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.p-component {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.p-button {
+  padding: 10px;
+}
+
+.p-button.p-button-icon-only {
+  padding: 5px 0;
+  width: 2.5rem;
+}
+
+.p-button.p-button-icon-only .p-button-icon {
+  font-size: 14px;
+}
+
+.p-card .p-card-content {
+  padding: 0;
+}
+
+.p-inputtext {
+  padding: 0.625rem;
+}
+
+.p-tabview-panels {
+  border-bottom: 2px solid #e5e7eb;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
