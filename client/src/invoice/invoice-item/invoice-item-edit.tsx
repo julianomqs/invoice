@@ -1,4 +1,5 @@
 import { Button } from "primereact/button";
+import { useState } from "react";
 import { Path, UseFormReturn } from "react-hook-form";
 import { v7 as uuidv7 } from "uuid";
 import { z } from "zod";
@@ -6,12 +7,10 @@ import ButtonBar from "../../component/button-bar";
 import { GraphqlAutoComplete, InputNumber } from "../../component/component";
 import Form from "../../component/form";
 import FormField from "../../component/form-field";
-import { InvoiceItem } from "../../graphql/graphql";
-import useForm from "../../component/use-form";
-import { useState } from "react";
-import { FIND_MANY_PRODUCT_QUERY } from "../../product/product-query";
 import { useLazyQuery } from "../../component/use-apollo";
-import { uuidValidateV7 } from "../../util/util";
+import useForm from "../../component/use-form";
+import { InvoiceItem } from "../../graphql/graphql";
+import { FIND_MANY_PRODUCT_QUERY } from "../../product/product-query";
 
 const InvoiceItemEdit = ({
   value,
