@@ -11,10 +11,8 @@ import ButtonColumn from "../component/button-column";
 import { InputText } from "../component/component";
 import Form from "../component/form";
 import FormField from "../component/form-field";
-import LoadingScreen from "../component/loading-screen";
 import { useMutation, useQuery } from "../component/use-apollo";
 import useForm from "../component/use-form";
-import useShowError from "../component/use-show-error";
 import { Product } from "../graphql/graphql";
 import { useToast } from "../use-toast";
 import {
@@ -69,9 +67,7 @@ const Table = ({
 }) => {
   const toastRef = useToast();
 
-  const [removeProduct, { error }] = useMutation(REMOVE_PRODUCT_MUTATION);
-
-  useShowError(error);
+  const [removeProduct] = useMutation(REMOVE_PRODUCT_MUTATION);
 
   return (
     <DataTable
@@ -123,7 +119,7 @@ const Table = ({
 const ProductList = () => {
   const navigate = useNavigate();
 
-  const { loading, error, data, refetch } = useQuery(FIND_MANY_PRODUCT_QUERY);
+  const { data, refetch } = useQuery(FIND_MANY_PRODUCT_QUERY);
 
   const handleSearch = async (filter?: { name: string }) => {
     await refetch(
@@ -141,28 +137,21 @@ const ProductList = () => {
     );
   };
 
-  useShowError(error);
-
   return (
     <>
       <Panel header="Products">
-        <LoadingScreen loading={loading}>
-          <div className="flex flex-col gap-5">
-            <Button
-              label="New Product"
-              onClick={() => navigate("/product")}
-              icon="pi pi-plus"
-              className="self-start"
-            />
+        <div className="flex flex-col gap-5">
+          <Button
+            label="New Product"
+            onClick={() => navigate("/product")}
+            icon="pi pi-plus"
+            className="self-start"
+          />
 
-            <SearchForm onChange={handleSearch} />
+          <SearchForm onChange={handleSearch} />
 
-            <Table
-              value={data?.products.results ?? []}
-              onChange={handleSearch}
-            />
-          </div>
-        </LoadingScreen>
+          <Table value={data?.products.results ?? []} onChange={handleSearch} />
+        </div>
       </Panel>
     </>
   );

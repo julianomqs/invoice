@@ -1,13 +1,12 @@
 import { Button } from "primereact/button";
 import { Panel } from "primereact/panel";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { z } from "zod";
 import ButtonBar from "../component/button-bar";
 import { InputText } from "../component/component";
 import Form from "../component/form";
 import FormField from "../component/form-field";
-import LoadingScreen from "../component/loading-screen";
 import { useMutation, useQuery } from "../component/use-apollo";
 import useForm from "../component/use-form";
 import { useToast } from "../use-toast";
@@ -37,7 +36,7 @@ const ProductForm = () => {
 
   const params = useParams();
 
-  const { loading, error, data } = useQuery(FIND_ONE_PRODUCT_QUERY, {
+  const { data } = useQuery(FIND_ONE_PRODUCT_QUERY, {
     variables: {
       input: { filter: { id: { eq: params.id as string } } }
     },
@@ -47,17 +46,6 @@ const ProductForm = () => {
   const [createProduct] = useMutation(CREATE_PRODUCT_MUTATION);
 
   const [updateProduct] = useMutation(UPDATE_PRODUCT_MUTATION);
-
-  useEffect(() => {
-    if (error) {
-      toastRef.current.show({
-        severity: "error",
-        summary: "Error",
-        detail: "Failed to load product",
-        life: 5000
-      });
-    }
-  }, [error, toastRef]);
 
   const [submitButton, setSubmitButton] = useState("");
 
@@ -106,54 +94,52 @@ const ProductForm = () => {
   });
 
   return (
-    <LoadingScreen loading={loading}>
-      <Form form={form} onSubmit={onSubmit}>
-        <div className="flex flex-col gap-2">
-          <div className="grid grid-cols-12">
-            <div className="col-span-4">
-              <FormField name="name" label="Name">
-                <InputText className="w-full" />
-              </FormField>
-            </div>
+    <Form form={form} onSubmit={onSubmit}>
+      <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-12">
+          <div className="col-span-4">
+            <FormField name="name" label="Name">
+              <InputText className="w-full" />
+            </FormField>
           </div>
+        </div>
 
-          <ButtonBar>
+        <ButtonBar>
+          <Button
+            name="save"
+            label="Save"
+            type="submit"
+            icon="pi pi-save"
+            onClick={() => setSubmitButton("save")}
+            disabled={form.formState.isSubmitting}
+            loading={form.formState.isSubmitting}
+          />
+
+          {!params.id && (
             <Button
-              name="save"
-              label="Save"
+              name="create"
+              label="Save and create"
               type="submit"
-              icon="pi pi-save"
-              onClick={() => setSubmitButton("save")}
-              disabled={form.formState.isSubmitting}
-              loading={form.formState.isSubmitting}
-            />
-
-            {!params.id && (
-              <Button
-                name="create"
-                label="Save and create"
-                type="submit"
-                icon="pi pi-file-plus"
-                onClick={() => setSubmitButton("create")}
-                disabled={form.formState.isSubmitting}
-                loading={form.formState.isSubmitting}
-                outlined
-              />
-            )}
-
-            <Button
-              label="Cancel"
-              type="button"
-              icon="pi pi-times"
-              onClick={() => navigate("/products")}
+              icon="pi pi-file-plus"
+              onClick={() => setSubmitButton("create")}
               disabled={form.formState.isSubmitting}
               loading={form.formState.isSubmitting}
               outlined
             />
-          </ButtonBar>
-        </div>
-      </Form>
-    </LoadingScreen>
+          )}
+
+          <Button
+            label="Cancel"
+            type="button"
+            icon="pi pi-times"
+            onClick={() => navigate("/products")}
+            disabled={form.formState.isSubmitting}
+            loading={form.formState.isSubmitting}
+            outlined
+          />
+        </ButtonBar>
+      </div>
+    </Form>
   );
 };
 

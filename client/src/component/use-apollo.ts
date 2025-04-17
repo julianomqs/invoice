@@ -1,20 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   ApolloCache,
+  useLazyQuery as apolloUseLazyQuery,
   useMutation as apolloUseMutation,
   useQuery as apolloUseQuery,
-  useLazyQuery as apolloUseLazyQuery,
   DefaultContext,
   DocumentNode,
+  LazyQueryHookOptions,
+  LazyQueryResultTuple,
   MutationHookOptions,
   MutationTuple,
   OperationVariables,
   QueryHookOptions,
   QueryResult,
-  TypedDocumentNode,
-  LazyQueryHookOptions,
-  LazyQueryResultTuple
+  TypedDocumentNode
 } from "@apollo/client";
+import { useEffect } from "react";
+import { useLoader } from "../use-loader";
+import useShowError from "./use-show-error";
 
 const parseDates = <T>(obj: T): T => {
   if (obj === null || typeof obj !== "object") return obj;
@@ -82,12 +85,25 @@ export const useQuery = <
       : options?.variables
   };
 
-  const result = apolloUseQuery<TData, TVariables>(query, processedOptions);
+  const { setLoading } = useLoader();
 
-  const parsedData = result.data ? parseDates(result.data) : result.data;
+  const { loading, data, error, ...result } = apolloUseQuery<TData, TVariables>(
+    query,
+    processedOptions
+  );
+
+  useShowError(error);
+
+  useEffect(() => {
+    setLoading(loading);
+  }, [loading, setLoading]);
+
+  const parsedData = data ? parseDates(data) : data;
 
   return {
     ...result,
+    loading,
+    error,
     data: parsedData
   };
 };
@@ -113,18 +129,23 @@ export const useMutation = <
       : options?.variables
   };
 
-  const [result, mutationResult] = apolloUseMutation<
-    TData,
-    TVariables,
-    TContext,
-    TCache
-  >(mutation, processedOptions);
+  const { setLoading } = useLoader();
 
-  const parsedData = mutationResult.data
-    ? parseDates(mutationResult.data)
-    : mutationResult.data;
+  const [result, { loading, data, error, ...mutationResult }] =
+    apolloUseMutation<TData, TVariables, TContext, TCache>(
+      mutation,
+      processedOptions
+    );
 
-  return [result, { ...mutationResult, data: parsedData }];
+  useShowError(error);
+
+  useEffect(() => {
+    setLoading(loading);
+  }, [loading, setLoading]);
+
+  const parsedData = data ? parseDates(data) : data;
+
+  return [result, { ...mutationResult, loading, error, data: parsedData }];
 };
 
 export const useLazyQuery = <
@@ -141,14 +162,20 @@ export const useLazyQuery = <
       : options?.variables
   };
 
-  const [result, queryResult] = apolloUseLazyQuery<TData, TVariables>(
-    query,
-    processedOptions
-  );
+  const { setLoading } = useLoader();
 
-  const parsedData = queryResult.data
-    ? parseDates(queryResult.data)
-    : queryResult.data;
+  const [result, { loading, data, error, ...queryResult }] = apolloUseLazyQuery<
+    TData,
+    TVariables
+  >(query, processedOptions);
 
-  return [result, { ...queryResult, data: parsedData }];
+  useShowError(error);
+
+  useEffect(() => {
+    setLoading(loading);
+  }, [loading, setLoading]);
+
+  const parsedData = data ? parseDates(data) : data;
+
+  return [result, { ...queryResult, loading, error, data: parsedData }];
 };

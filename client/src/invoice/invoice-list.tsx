@@ -11,11 +11,9 @@ import ButtonColumn from "../component/button-column";
 import { InputText } from "../component/component";
 import Form from "../component/form";
 import FormField from "../component/form-field";
-import LoadingScreen from "../component/loading-screen";
 import { useLazyQuery, useMutation, useQuery } from "../component/use-apollo";
 import useForm from "../component/use-form";
 import useReport from "../component/use-report";
-import useShowError from "../component/use-show-error";
 import { Invoice } from "../graphql/graphql";
 import { useToast } from "../use-toast";
 import {
@@ -74,9 +72,7 @@ const Table = ({
 }) => {
   const toastRef = useToast();
 
-  const [removeInvoice, { error }] = useMutation(REMOVE_INVOICE_MUTATION);
-
-  useShowError(error);
+  const [removeInvoice] = useMutation(REMOVE_INVOICE_MUTATION);
 
   return (
     <DataTable
@@ -136,9 +132,7 @@ const InvoiceList = () => {
 
   const navigate = useNavigate();
 
-  const { loading, error, data, refetch } = useQuery(FIND_MANY_INVOICE_QUERY);
-
-  useShowError(error);
+  const { data, refetch } = useQuery(FIND_MANY_INVOICE_QUERY);
 
   const [filter, setFilter] = useState<{ name: string }>();
 
@@ -169,46 +163,44 @@ const InvoiceList = () => {
   return (
     <>
       <Panel header="Invoices">
-        <LoadingScreen loading={loading}>
-          <div className="flex flex-col gap-5">
-            <Button
-              label="New Invoice"
-              onClick={() => navigate("/invoice")}
-              icon="pi pi-plus"
-              className="self-start"
-            />
+        <div className="flex flex-col gap-5">
+          <Button
+            label="New Invoice"
+            onClick={() => navigate("/invoice")}
+            icon="pi pi-plus"
+            className="self-start"
+          />
 
-            <SearchForm onChange={handleSearch} />
+          <SearchForm onChange={handleSearch} />
 
-            <Button
-              label="Generate report"
-              onClick={async () => {
-                const { data } = await generateInvoiceReport({
-                  variables: filter ? { input: filter } : undefined
+          <Button
+            label="Generate report"
+            onClick={async () => {
+              const { data } = await generateInvoiceReport({
+                variables: filter ? { input: filter } : undefined
+              });
+
+              if (data?.report.report) {
+                setReport(data.report.report);
+              } else {
+                toastRef.current.show({
+                  severity: "warn",
+                  summary: "Aviso",
+                  detail: "Sem dados para emitir!",
+                  life: 5000
                 });
+              }
+            }}
+            icon="pi pi-file"
+            className="self-start"
+            outlined
+          />
 
-                if (data?.report.report) {
-                  setReport(data.report.report);
-                } else {
-                  toastRef.current.show({
-                    severity: "warn",
-                    summary: "Aviso",
-                    detail: "Sem dados para emitir!",
-                    life: 5000
-                  });
-                }
-              }}
-              icon="pi pi-file"
-              className="self-start"
-              outlined
-            />
-
-            <Table
-              value={(data?.invoices.results ?? []) as Invoice[]}
-              onChange={handleSearch}
-            />
-          </div>
-        </LoadingScreen>
+          <Table
+            value={(data?.invoices.results ?? []) as Invoice[]}
+            onChange={handleSearch}
+          />
+        </div>
       </Panel>
     </>
   );

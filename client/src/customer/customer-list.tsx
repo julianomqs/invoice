@@ -11,10 +11,8 @@ import ButtonColumn from "../component/button-column";
 import { InputText } from "../component/component";
 import Form from "../component/form";
 import FormField from "../component/form-field";
-import LoadingScreen from "../component/loading-screen";
 import { useMutation, useQuery } from "../component/use-apollo";
 import useForm from "../component/use-form";
-import useShowError from "../component/use-show-error";
 import { Customer } from "../graphql/graphql";
 import { useToast } from "../use-toast";
 import {
@@ -72,9 +70,7 @@ const Table = ({
 }) => {
   const toastRef = useToast();
 
-  const [removeCustomer, { error }] = useMutation(REMOVE_CUSTOMER_MUTATION);
-
-  useShowError(error);
+  const [removeCustomer] = useMutation(REMOVE_CUSTOMER_MUTATION);
 
   return (
     <DataTable
@@ -127,7 +123,7 @@ const Table = ({
 const CustomerList = () => {
   const navigate = useNavigate();
 
-  const { loading, error, data, refetch } = useQuery(FIND_MANY_CUSTOMER_QUERY);
+  const { data, refetch } = useQuery(FIND_MANY_CUSTOMER_QUERY);
 
   const handleSearch = async (filter?: { name: string }) => {
     await refetch(
@@ -154,28 +150,24 @@ const CustomerList = () => {
     );
   };
 
-  useShowError(error);
-
   return (
     <>
       <Panel header="Customers">
-        <LoadingScreen loading={loading}>
-          <div className="flex flex-col gap-5">
-            <Button
-              label="New Customer"
-              onClick={() => navigate("/customer")}
-              icon="pi pi-plus"
-              className="self-start"
-            />
+        <div className="flex flex-col gap-5">
+          <Button
+            label="New Customer"
+            onClick={() => navigate("/customer")}
+            icon="pi pi-plus"
+            className="self-start"
+          />
 
-            <SearchForm onChange={handleSearch} />
+          <SearchForm onChange={handleSearch} />
 
-            <Table
-              value={data?.customers.results ?? []}
-              onChange={handleSearch}
-            />
-          </div>
-        </LoadingScreen>
+          <Table
+            value={data?.customers.results ?? []}
+            onChange={handleSearch}
+          />
+        </div>
       </Panel>
     </>
   );

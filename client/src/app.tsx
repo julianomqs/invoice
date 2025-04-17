@@ -8,6 +8,7 @@ import Home from "./home";
 import InvoiceEdit from "./invoice/invoice-edit";
 import InvoiceList from "./invoice/invoice-list";
 import Layout from "./layout";
+import { LoaderProvider } from "./loader-provider";
 import ProductEdit from "./product/product-edit";
 import ProductList from "./product/product-list";
 import { ToastProvider } from "./toast-provider";
@@ -35,25 +36,27 @@ const App = () => (
     <PrimeReactProvider>
       <ConfirmDialog />
       <ToastProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route path="/products" element={<ProductList />} />
-              <Route path="/product" element={<ProductEdit />}>
-                <Route path="/product/:id" element={<ProductEdit />} />
+        <LoaderProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route path="/products" element={<ProductList />} />
+                <Route path="/product" element={<ProductEdit />}>
+                  <Route path="/product/:id" element={<ProductEdit />} />
+                </Route>
+                <Route path="/customers" element={<CustomerList />} />
+                <Route path="/customer" element={<CustomerEdit />}>
+                  <Route path="/customer/:id" element={<CustomerEdit />} />
+                </Route>
+                <Route path="/invoices" element={<InvoiceList />} />
+                <Route path="/invoice" element={<InvoiceEdit />}>
+                  <Route path="/invoice/:id" element={<InvoiceEdit />} />
+                </Route>
+                <Route path="/" element={<Home />} />
               </Route>
-              <Route path="/customers" element={<CustomerList />} />
-              <Route path="/customer" element={<CustomerEdit />}>
-                <Route path="/customer/:id" element={<CustomerEdit />} />
-              </Route>
-              <Route path="/invoices" element={<InvoiceList />} />
-              <Route path="/invoice" element={<InvoiceEdit />}>
-                <Route path="/invoice/:id" element={<InvoiceEdit />} />
-              </Route>
-              <Route path="/" element={<Home />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
+            </Routes>
+          </BrowserRouter>
+        </LoaderProvider>
       </ToastProvider>
     </PrimeReactProvider>
   </ApolloProvider>

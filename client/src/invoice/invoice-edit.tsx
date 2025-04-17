@@ -5,10 +5,8 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { z } from "zod";
 import ButtonBar from "../component/button-bar";
-import LoadingScreen from "../component/loading-screen";
 import { useMutation, useQuery } from "../component/use-apollo";
 import useForm from "../component/use-form";
-import useShowError from "../component/use-show-error";
 import useSubrecord from "../component/use-subrecord";
 import { InvoiceItem } from "../graphql/graphql";
 import { useToast } from "../use-toast";
@@ -31,7 +29,7 @@ const InvoiceForm = () => {
 
   const [updateInvoice] = useMutation(UPDATE_INVOICE_MUTATION);
 
-  const { loading, error, data } = useQuery(FIND_ONE_INVOICE_QUERY, {
+  const { data } = useQuery(FIND_ONE_INVOICE_QUERY, {
     variables: {
       input: { filter: { id: { eq: params.id as string } } }
     },
@@ -49,8 +47,6 @@ const InvoiceForm = () => {
     }
   );
 
-  useShowError(error);
-
   const [submitButton, setSubmitButton] = useState("");
 
   const schema = z.object({
@@ -67,118 +63,113 @@ const InvoiceForm = () => {
   });
 
   return (
-    <LoadingScreen loading={loading}>
-      <div className="flex flex-col gap-5">
-        <TabView renderActiveOnly={false}>
-          <TabPanel header="Invoice">
-            <InvoiceTab
-              form={form}
-              onSubmit={async (data) => {
-                try {
-                  if (params.id) {
-                    await updateInvoice({
-                      variables: {
-                        input: {
-                          id: params.id,
-                          dateTime: data.dateTime,
-                          customer: data.customer.id,
-                          items: {
-                            create: itemsCreate(),
-                            update: itemsUpdate(),
-                            remove: itemsRemove()
-                          }
+    <div className="flex flex-col gap-5">
+      <TabView renderActiveOnly={false}>
+        <TabPanel header="Invoice">
+          <InvoiceTab
+            form={form}
+            onSubmit={async (data) => {
+              try {
+                if (params.id) {
+                  await updateInvoice({
+                    variables: {
+                      input: {
+                        id: params.id,
+                        dateTime: data.dateTime,
+                        customer: data.customer.id,
+                        items: {
+                          create: itemsCreate(),
+                          update: itemsUpdate(),
+                          remove: itemsRemove()
                         }
                       }
-                    });
-                  } else {
-                    await createInvoice({
-                      variables: {
-                        input: {
-                          dateTime: data.dateTime,
-                          customer: data.customer.id,
-                          items: itemsCreate()
-                        }
-                      }
-                    });
-                  }
-
-                  toastRef.current.show({
-                    severity: "success",
-                    summary: "Info",
-                    detail: `Invoice ${
-                      params.id ? "updated" : "created"
-                    } with success!`,
-                    life: 5000
+                    }
                   });
-
-                  if (submitButton === "save") {
-                    navigate("/invoices");
-                  } else {
-                    form.reset();
-                    form.setFocus("dateTime");
-                    setItems([]);
-                  }
-                } catch (error) {
-                  const message =
-                    error instanceof Error
-                      ? error.message
-                      : "Error saving the invoice";
-
-                  toastRef.current.show({
-                    severity: "error",
-                    summary: "Error",
-                    detail: message,
-                    life: 5000
+                } else {
+                  await createInvoice({
+                    variables: {
+                      input: {
+                        dateTime: data.dateTime,
+                        customer: data.customer.id,
+                        items: itemsCreate()
+                      }
+                    }
                   });
                 }
-              }}
-            />
-          </TabPanel>
 
-          <TabPanel header="Items">
-            <InvoiceItemTab
-              value={items}
-              onChange={(items) => setItems(items)}
-            />
-          </TabPanel>
-        </TabView>
+                toastRef.current.show({
+                  severity: "success",
+                  summary: "Info",
+                  detail: `Invoice ${
+                    params.id ? "updated" : "created"
+                  } with success!`,
+                  life: 5000
+                });
 
-        <ButtonBar>
-          <Button
-            label="Save"
-            type="submit"
-            icon="pi pi-save"
-            form="invoiceForm"
-            onClick={() => setSubmitButton("save")}
-            disabled={form.formState.isSubmitting}
-            loading={form.formState.isSubmitting}
+                if (submitButton === "save") {
+                  navigate("/invoices");
+                } else {
+                  form.reset();
+                  form.setFocus("dateTime");
+                  setItems([]);
+                }
+              } catch (error) {
+                const message =
+                  error instanceof Error
+                    ? error.message
+                    : "Error saving the invoice";
+
+                toastRef.current.show({
+                  severity: "error",
+                  summary: "Error",
+                  detail: message,
+                  life: 5000
+                });
+              }
+            }}
           />
+        </TabPanel>
 
-          {!params.id && (
-            <Button
-              label="Save and create"
-              type="submit"
-              icon="pi pi-file-plus"
-              form="invoiceForm"
-              onClick={() => setSubmitButton("create")}
-              disabled={form.formState.isSubmitting}
-              loading={form.formState.isSubmitting}
-              outlined
-            />
-          )}
+        <TabPanel header="Items">
+          <InvoiceItemTab value={items} onChange={(items) => setItems(items)} />
+        </TabPanel>
+      </TabView>
 
+      <ButtonBar>
+        <Button
+          label="Save"
+          type="submit"
+          icon="pi pi-save"
+          form="invoiceForm"
+          onClick={() => setSubmitButton("save")}
+          disabled={form.formState.isSubmitting}
+          loading={form.formState.isSubmitting}
+        />
+
+        {!params.id && (
           <Button
-            label="Cancel"
-            type="button"
-            icon="pi pi-times"
-            onClick={() => navigate("/invoices")}
+            label="Save and create"
+            type="submit"
+            icon="pi pi-file-plus"
+            form="invoiceForm"
+            onClick={() => setSubmitButton("create")}
             disabled={form.formState.isSubmitting}
             loading={form.formState.isSubmitting}
             outlined
           />
-        </ButtonBar>
-      </div>
-    </LoadingScreen>
+        )}
+
+        <Button
+          label="Cancel"
+          type="button"
+          icon="pi pi-times"
+          onClick={() => navigate("/invoices")}
+          disabled={form.formState.isSubmitting}
+          loading={form.formState.isSubmitting}
+          outlined
+        />
+      </ButtonBar>
+    </div>
   );
 };
 
