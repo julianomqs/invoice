@@ -153,7 +153,10 @@ export class InvoiceRepository extends Repository<
     })) as unknown as InvoiceDomain;
   }
 
-  async generateReport(filter?: { name?: string }) {
+  async generateReport(filter?: {
+    dateTime?: { start?: Date; end?: Date };
+    name?: string;
+  }) {
     let query = db
       .selectFrom("invoice as i")
       .innerJoin("customer as c", "c.id", "i.customer_id")
@@ -170,6 +173,12 @@ export class InvoiceRepository extends Repository<
       .orderBy("c.name")
       .orderBy("i.id")
       .orderBy("ii.id");
+
+    if (filter?.dateTime && filter.dateTime.start && filter.dateTime.end) {
+      query = query
+        .where("i.date_time", ">=", filter.dateTime.start)
+        .where("i.date_time", "<=", filter.dateTime.end);
+    }
 
     if (filter?.name) {
       query = query.where("c.name", "like", `%${filter.name}%`);

@@ -4,6 +4,7 @@ import { DateScalar } from "../graphql/date-scalar-type.js";
 import { IdScalar } from "../graphql/id-scalar-type.js";
 import {
   DateOperators,
+  DateRange,
   IDOperators,
   SortOrder,
   StringOperators
@@ -195,6 +196,9 @@ export class FindManyInvoiceInput {
 
 @InputType()
 export class GenerateInvoiceReportInput {
+  @Field(() => DateRange, { nullable: true })
+  dateTime?: DateRange;
+
   @Field({ nullable: true })
   name?: string;
 }

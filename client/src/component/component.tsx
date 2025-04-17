@@ -104,3 +104,60 @@ export const InputNumber = (props: InputNumberProps) => {
     />
   );
 };
+
+export type DateRangeProps = Omit<CalendarProps, "value" | "onChange"> & {
+  value?: { start?: Date; end?: Date };
+  onChange?: (value: { start?: Date; end?: Date }) => void;
+};
+
+const DateRangeInner = (props: DateRangeProps) => (
+  <div className="flex gap-2">
+    <PrimeReactCalendar
+      {...props}
+      value={props.value?.start}
+      onChange={(e) =>
+        props.onChange?.({
+          start: e.value as Date,
+          end: props.value?.end
+        })
+      }
+      mask="99/99/9999"
+      showOnFocus={false}
+      monthNavigator={true}
+      showButtonBar={true}
+      showIcon={true}
+      yearNavigator={true}
+      dateFormat="dd/mm/yy"
+    />
+
+    <PrimeReactCalendar
+      {...props}
+      value={props.value?.end}
+      onChange={(e) =>
+        props.onChange?.({
+          start: props.value?.start,
+          end: e.value as Date
+        })
+      }
+      mask="99/99/9999"
+      showOnFocus={false}
+      monthNavigator={true}
+      showButtonBar={true}
+      showIcon={true}
+      yearNavigator={true}
+      dateFormat="dd/mm/yy"
+    />
+  </div>
+);
+
+export const DateRange = (props: CalendarProps) => {
+  const { control } = useFormContext();
+
+  return (
+    <Controller
+      name={props.name as string}
+      control={control}
+      render={({ field }) => <DateRangeInner {...props} {...field} />}
+    />
+  );
+};

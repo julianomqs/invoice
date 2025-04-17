@@ -189,7 +189,14 @@ export class InvoiceResolver {
   @ZodValidator(
     z
       .object({
-        name: z.string()
+        dateTime: z
+          .object({
+            start: z.date(),
+            end: z.date()
+          })
+          .optional()
+          .nullable(),
+        name: z.string().optional().nullable()
       })
       .optional()
       .nullable()
@@ -197,11 +204,21 @@ export class InvoiceResolver {
   async generateInvoiceReport(
     @Arg("input", { nullable: true }) input: GenerateInvoiceReportInput
   ) {
+    const filters: string[] = [];
+
+    if (input.name) {
+      filters.push(`Name: ${input.name}`);
+    }
+
     return {
       report: await generatePDF({
         url: "invoice",
         param: {
-          TITLE: "Invoices"
+          TITLE: "Invoices",
+          FILTERS: filters,
+          DATE: input.dateTime
+            ? `${input.dateTime.start.toLocaleDateString("pt-BR")} to ${input.dateTime.end.toLocaleDateString("pt-BR")}`
+            : undefined
         },
         data: await this.service.generateReport(input)
       })

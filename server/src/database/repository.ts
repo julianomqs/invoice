@@ -228,6 +228,25 @@ export const buildFilter = (filter: any) => {
           currentFilter[finalField] = { not: { endsWith: value } };
         } else if (operator === "notContains") {
           currentFilter[finalField] = { not: { contains: value } };
+        } else if (
+          operator === "between" &&
+          value &&
+          typeof value === "object"
+        ) {
+          let { start, end } = value;
+
+          if (start instanceof Date && end instanceof Date) {
+            start = new Date(start);
+            start.setHours(0, 0, 0, 0);
+
+            end = new Date(end);
+            end.setHours(23, 59, 59, 999);
+          }
+
+          currentFilter[finalField] = {
+            gte: start,
+            lte: end
+          };
         }
 
         filterApplied = true;

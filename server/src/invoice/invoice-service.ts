@@ -28,7 +28,10 @@ export class InvoiceService {
     return this.repository.findMany(input);
   }
 
-  async generateReport(filter?: { name?: string }) {
+  async generateReport(filter?: {
+    dateTime?: { start?: Date; end?: Date };
+    name?: string;
+  }) {
     return this.repository.generateReport(filter);
   }
 }

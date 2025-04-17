@@ -3,18 +3,18 @@ import { Card } from "primereact/card";
 import { Column } from "primereact/column";
 import { DataTable } from "primereact/datatable";
 import { Panel } from "primereact/panel";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useDebouncedCallback } from "use-debounce";
 import { z } from "zod";
+import ButtonBar from "../component/button-bar";
 import ButtonColumn from "../component/button-column";
-import { InputText } from "../component/component";
+import { DateRange, InputText } from "../component/component";
 import Form from "../component/form";
 import FormField from "../component/form-field";
 import { useLazyQuery, useMutation, useQuery } from "../component/use-apollo";
 import useForm from "../component/use-form";
 import useReport from "../component/use-report";
-import { Invoice } from "../graphql/graphql";
+import { FindInvoiceFilter, Invoice } from "../graphql/graphql";
 import { useToast } from "../use-toast";
 import {
   FIND_MANY_INVOICE_QUERY,
@@ -22,42 +22,64 @@ import {
   REMOVE_INVOICE_MUTATION
 } from "./invoice-query";
 
+interface SearchFilter {
+  dateTime?: { start: Date; end: Date };
+  name?: string;
+}
+
 const SearchForm = ({
   onChange
 }: {
-  onChange: (data: { name: string }) => void;
+  onChange: (filter: SearchFilter) => void;
 }) => {
   const schema = z.object({
-    name: z.string().max(255)
+    dateTime: z.object({ start: z.date(), end: z.date() }).optional(),
+    name: z.string().max(255).optional()
   });
 
   type FormData = z.infer<typeof schema>;
 
   const form = useForm<FormData>({
-    defaultValues: { name: "" },
+    defaultValues: { dateTime: undefined, name: "" },
     schema
   });
 
-  const debouncedSubmit = useDebouncedCallback(() => {
-    form.handleSubmit((data: FormData) => onChange(data))();
-  }, 300);
-
-  const nameValue = form.watch("name");
-
-  useEffect(() => {
-    debouncedSubmit();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [nameValue]);
+  const onSubmit = form.handleSubmit(onChange);
 
   return (
     <Card>
-      <Form form={form}>
-        <FormField name="name" label="Name">
-          <InputText
-            className="w-full"
-            placeholder="Search invoices by customer name"
-          />
-        </FormField>
+      <Form form={form} onSubmit={onSubmit}>
+        <div className="flex flex-col gap-2">
+          <div className="grid grid-cols-12">
+            <div className="col-span-4">
+              <FormField name="dateTime" label="DateTime">
+                <DateRange className="w-full" />
+              </FormField>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-12">
+            <div className="col-span-12">
+              <FormField name="name" label="Name">
+                <InputText
+                  className="w-full"
+                  placeholder="Search invoices by customer name"
+                />
+              </FormField>
+            </div>
+          </div>
+
+          <ButtonBar>
+            <Button
+              label="Find"
+              type="submit"
+              icon="pi pi-search"
+              disabled={form.formState.isSubmitting}
+              loading={form.formState.isSubmitting}
+              outlined
+            />
+          </ButtonBar>
+        </div>
       </Form>
     </Card>
   );
@@ -134,30 +156,26 @@ const InvoiceList = () => {
 
   const { data, refetch } = useQuery(FIND_MANY_INVOICE_QUERY);
 
-  const [filter, setFilter] = useState<{ name: string }>();
+  const [filter, setFilter] = useState<SearchFilter>();
 
   const setReport = useReport("invoice");
 
   const [generateInvoiceReport] = useLazyQuery(GENERATE_INVOICE_REPORT_QUERY);
 
-  const handleSearch = async (filter?: { name: string }) => {
-    if (filter?.name) {
-      setFilter({ name: filter.name });
+  const handleSearch = async (searchFilter?: SearchFilter) => {
+    setFilter(searchFilter);
+
+    const filter: FindInvoiceFilter = {};
+
+    if (searchFilter?.dateTime) {
+      filter.dateTime = { between: searchFilter.dateTime };
     }
 
-    await refetch(
-      filter
-        ? {
-            input: {
-              filter: {
-                customer_name: {
-                  startsWith: filter.name
-                }
-              }
-            }
-          }
-        : undefined
-    );
+    if (searchFilter?.name) {
+      filter.customer_name = { startsWith: searchFilter.name };
+    }
+
+    await refetch({ input: { filter } });
   };
 
   return (
