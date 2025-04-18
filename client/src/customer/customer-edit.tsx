@@ -10,6 +10,7 @@ import FormField from "../component/form-field";
 import { useMutation, useQuery } from "../component/use-apollo";
 import useForm from "../component/use-form";
 import { useToast } from "../use-toast";
+import { requiredString } from "../util/util";
 import {
   CREATE_CUSTOMER_MUTATION,
   FIND_ONE_CUSTOMER_QUERY,
@@ -18,22 +19,8 @@ import {
 
 const CustomerForm = () => {
   const schema = z.object({
-    name: z
-      .string()
-      .max(255)
-      .superRefine((val, ctx) => {
-        if (val.trim().length === 0) {
-          ctx.addIssue({ code: "custom", message: "Required" });
-        }
-      }),
-    document: z
-      .string()
-      .max(255)
-      .superRefine((val, ctx) => {
-        if (val.trim().length === 0) {
-          ctx.addIssue({ code: "custom", message: "Required" });
-        }
-      })
+    name: z.string().max(255).superRefine(requiredString),
+    document: z.string().max(255).superRefine(requiredString)
   });
 
   type FormData = z.infer<typeof schema>;

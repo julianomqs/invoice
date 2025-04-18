@@ -17,6 +17,30 @@ const FormField = ({
 
   const id = uuidv7();
 
+  const getErrorMessage = () => {
+    const error = errors[name];
+
+    if (!error) {
+      return null;
+    }
+
+    if ("message" in error) {
+      return error.message as string;
+    }
+
+    const nestedError = Object.values(error)[0];
+
+    if (
+      nestedError &&
+      typeof nestedError === "object" &&
+      "message" in nestedError
+    ) {
+      return (nestedError as { message?: string }).message ?? null;
+    }
+
+    return null;
+  };
+
   return (
     <div className="flex flex-col gap-1">
       <label htmlFor={id}>{label}</label>
@@ -33,9 +57,7 @@ const FormField = ({
             invalid: Boolean(errors[name])
           }
         )}
-      {errors[name] && (
-        <small className="p-error">{errors[name].message as string}</small>
-      )}
+      {errors[name] && <small className="p-error">{getErrorMessage()}</small>}
     </div>
   );
 };

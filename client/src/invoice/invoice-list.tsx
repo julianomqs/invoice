@@ -33,7 +33,17 @@ const SearchForm = ({
   onChange: (filter: SearchFilter) => void;
 }) => {
   const schema = z.object({
-    dateTime: z.object({ start: z.date(), end: z.date() }).optional(),
+    dateTime: z
+      .object({ start: z.date(), end: z.date() })
+      .superRefine((val, ctx) => {
+        if (val.end < val.start) {
+          ctx.addIssue({
+            code: "custom",
+            message: "The end date should be inferior than the start date"
+          });
+        }
+      })
+      .optional(),
     name: z.string().max(255).optional()
   });
 

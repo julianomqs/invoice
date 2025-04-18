@@ -13,7 +13,7 @@ import {
   InputText as PrimeReactInputText
 } from "primereact/inputtext";
 import { useState } from "react";
-import { Controller, useFormContext } from "react-hook-form";
+import { Controller, RefCallBack, useFormContext } from "react-hook-form";
 
 export const InputText = (props: InputTextProps) => {
   const { control } = useFormContext();
@@ -108,12 +108,25 @@ export const InputNumber = (props: InputNumberProps) => {
 export type DateRangeProps = Omit<CalendarProps, "value" | "onChange"> & {
   value?: { start?: Date; end?: Date };
   onChange?: (value: { start?: Date; end?: Date }) => void;
+  ref?: RefCallBack;
 };
 
-const DateRangeInner = (props: DateRangeProps) => (
+const DateRangeInner = ({
+  id,
+  name,
+  onBlur,
+  ref,
+  disabled,
+  ...props
+}: DateRangeProps) => (
   <div className="flex gap-2">
     <PrimeReactCalendar
       {...props}
+      id={id}
+      name={name}
+      onBlur={onBlur}
+      ref={ref}
+      disabled={disabled}
       value={props.value?.start}
       onChange={(e) =>
         props.onChange?.({
