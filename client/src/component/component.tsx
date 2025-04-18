@@ -13,12 +13,7 @@ import {
   InputText as PrimeReactInputText
 } from "primereact/inputtext";
 import { useEffect, useRef, useState } from "react";
-import {
-  Controller,
-  FieldError,
-  RefCallBack,
-  useFormContext
-} from "react-hook-form";
+import { Controller, RefCallBack, useFormContext } from "react-hook-form";
 
 export const InputText = (props: InputTextProps) => {
   const { control } = useFormContext();
