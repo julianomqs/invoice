@@ -12,8 +12,13 @@ import {
   InputTextProps,
   InputText as PrimeReactInputText
 } from "primereact/inputtext";
-import { useState } from "react";
-import { Controller, RefCallBack, useFormContext } from "react-hook-form";
+import { useEffect, useRef, useState } from "react";
+import {
+  Controller,
+  FieldError,
+  RefCallBack,
+  useFormContext
+} from "react-hook-form";
 
 export const InputText = (props: InputTextProps) => {
   const { control } = useFormContext();
@@ -111,57 +116,71 @@ export type DateRangeProps = Omit<CalendarProps, "value" | "onChange"> & {
   ref?: RefCallBack;
 };
 
-const DateRangeInner = ({
-  id,
-  name,
-  onBlur,
-  ref,
-  disabled,
-  ...props
-}: DateRangeProps) => (
-  <div className="flex gap-2">
-    <PrimeReactCalendar
-      {...props}
-      id={id}
-      name={name}
-      onBlur={onBlur}
-      ref={ref}
-      disabled={disabled}
-      value={props.value?.start}
-      onChange={(e) =>
-        props.onChange?.({
-          start: e.value as Date,
-          end: props.value?.end
-        })
-      }
-      mask="99/99/9999"
-      showOnFocus={false}
-      monthNavigator={true}
-      showButtonBar={true}
-      showIcon={true}
-      yearNavigator={true}
-      dateFormat="dd/mm/yy"
-    />
+const DateRangeInner = ({ id, name, ...props }: DateRangeProps) => {
+  const startRef = useRef<PrimeReactCalendar>(null);
+  const endRef = useRef<PrimeReactCalendar>(null);
 
-    <PrimeReactCalendar
-      {...props}
-      value={props.value?.end}
-      onChange={(e) =>
-        props.onChange?.({
-          start: props.value?.start,
-          end: e.value as Date
-        })
+  const {
+    formState: { errors }
+  } = useFormContext();
+
+  useEffect(() => {
+    if (name) {
+      const error = errors[name];
+
+      if (error && "start" in error && startRef.current) {
+        startRef.current.focus();
+      } else if (error && "end" in error && endRef.current) {
+        endRef.current.focus();
       }
-      mask="99/99/9999"
-      showOnFocus={false}
-      monthNavigator={true}
-      showButtonBar={true}
-      showIcon={true}
-      yearNavigator={true}
-      dateFormat="dd/mm/yy"
-    />
-  </div>
-);
+    }
+  }, [errors, name]);
+
+  return (
+    <div className="flex gap-2">
+      <PrimeReactCalendar
+        {...props}
+        ref={startRef}
+        id={id}
+        name={name}
+        value={props.value?.start}
+        onChange={(e) =>
+          props.onChange?.({
+            start: e.value as Date,
+            end: props.value?.end
+          })
+        }
+        mask="99/99/9999"
+        showOnFocus={false}
+        monthNavigator={true}
+        showButtonBar={true}
+        showIcon={true}
+        yearNavigator={true}
+        dateFormat="dd/mm/yy"
+      />
+
+      <PrimeReactCalendar
+        {...props}
+        ref={endRef}
+        name={name}
+        value={props.value?.end}
+        onChange={(e) =>
+          props.onChange?.({
+            start: props.value?.start,
+            end: e.value as Date
+          })
+        }
+        mask="99/99/9999"
+        showOnFocus={false}
+        monthNavigator={true}
+        showButtonBar={true}
+        showIcon={true}
+        yearNavigator={true}
+        dateFormat="dd/mm/yy"
+      />
+    </div>
+  );
+};
 
 export const DateRange = (props: CalendarProps) => {
   const { control } = useFormContext();
