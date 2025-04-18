@@ -26,6 +26,10 @@ const Layout = () => (
     />
 
     <Outlet />
+
+    <div className="fixed bottom-0 left-0 w-full bg-gray-400 text-white text-center py-3 text-xs">
+      <span>Invoice by Juliano Marques</span>
+    </div>
   </div>
 );
 
